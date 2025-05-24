@@ -1,0 +1,231 @@
+package com.example.vintify.controller;
+
+import com.example.vintify.Koneksi;
+import it.sauronsoftware.jave.Encoder;
+import it.sauronsoftware.jave.MultimediaInfo;
+import jaco.mp3.player.MP3Player;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.FileChooser;
+//import javazoom.jl.player.Player;
+
+import java.io.File;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.sql.*;
+import java.util.List;
+import java.util.ResourceBundle;
+
+
+public class DashboardController implements Initializable {
+    private String selectedSong = null;
+    private MP3Player player = new MP3Player();
+//    private Player player = new Player();
+
+    @FXML
+    private Button btnAddMusic;
+
+    @FXML
+    private ImageView playPauseBtn;
+
+    @FXML
+    private ListView<String> songListView;
+
+    @FXML
+    private Label songLabel;
+
+    @FXML
+    private Label endDuration;
+
+    @FXML
+    private void onBtnAddMusicClick() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Pilih file lagu (MP3)");
+        fileChooser.setInitialDirectory(new File("C:/Users/Kevin"));
+
+        // Hanya MP3 yang bisa di select
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Audio Files", "*.mp3"));
+
+        List<File> selectedFile = fileChooser.showOpenMultipleDialog(btnAddMusic.getScene().getWindow());
+        if (selectedFile != null) {
+            for (File file : selectedFile) {
+                Encoder encoder = new Encoder();
+
+                String title = file.getName();
+                String fileName = file.getName();
+                String filePath = null;
+                long duration = 0;
+                long fileSize = file.length();
+
+                try {
+                    MultimediaInfo mi = encoder.getInfo(file);
+                    duration = mi.getDuration();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                if (file.getName().toLowerCase().endsWith(".mp3")) {
+                    // Proses menyimpan file musik mp3 ke dalam directory resource
+                    try {
+                        File targetFile = getFile(file);
+                        filePath = targetFile.getAbsolutePath();
+
+                        Files.copy(file.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    } catch (Exception e) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("Error");
+                        alert.setContentText("Gagal menyimpan data, error: " + e.getMessage());
+                        alert.show();
+                    }
+
+                    // Proses menyimpan data ke database
+                    try {
+                        Connection conn = Koneksi.getConnect();
+                        String query = "INSERT INTO songs (title, filename, filepath, duration, filesize) VALUES (?, ?, ?, ?, ?)";
+                        PreparedStatement pst = conn.prepareStatement(query);
+                        pst.setString(1, title);
+                        pst.setString(2, fileName);
+                        pst.setString(3, filePath);
+                        pst.setLong(4, duration);
+                        pst.setLong(5, fileSize);
+
+                        int resultQuery = pst.executeUpdate();
+                        if (resultQuery > 0) {
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Success");
+                            alert.setHeaderText("Berhasil");
+                            alert.setContentText("Data berhasil di upload!");
+                            alert.show();
+
+                            this.getSongsData();
+                        } else {
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Error");
+                            alert.setHeaderText("Error");
+                            alert.setContentText("Gagal mengupload data!");
+                            alert.show();
+                        }
+                    } catch (Exception e) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("Error");
+                        alert.setContentText("Gagal mengupload data ke database: " + e.getMessage());
+                        alert.show();
+                    }
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Error");
+                    alert.setContentText("File yang diupload harus berekstensi mp3");
+                    alert.show();
+                }
+            }
+        }
+    }
+
+    private static File getFile(File file) {
+        File targetDir = new File("src/main/resources/com/example/vintify/assets/musics");
+        if (!targetDir.exists()) {
+            targetDir.mkdir();
+        }
+
+        File targetFile = new File(targetDir, file.getName());
+
+        if (targetFile.exists()) {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Peringatan");
+            alert.setHeaderText("Peringatan");
+            alert.setContentText("File sudah ada, apakah anda ingin menimpanya?");
+            alert.show();
+        }
+        return targetFile;
+    }
+
+    @FXML
+    public void onSongListViewClick() {
+        selectedSong = String.valueOf(songListView.getSelectionModel().getSelectedItem());
+        songLabel.setText(selectedSong);
+    }
+
+    @FXML
+    public void onPlayPauseBtnClick() {
+        boolean isSongPlay = false;
+        if (selectedSong == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Error");
+            alert.setContentText("Silakan pilih file yang ingin diputar terlebih dahulu.");
+            alert.show();
+        } else {
+            if (playPauseBtn.getImage().getUrl().equals("file:/C:/Users/Kevin/Java/projects/Vintify/target/classes/com/example/vintify/assets/images/play-button-arrowhead.png")) {
+                playPauseBtn.setImage(new Image("file:/C:/Users/Kevin/Java/projects/Vintify/target/classes/com/example/vintify/assets/images/pause.png"));
+                isSongPlay = true;
+            } else {
+                playPauseBtn.setImage(new Image("file:/C:/Users/Kevin/Java/projects/Vintify/target/classes/com/example/vintify/assets/images/play-button-arrowhead.png"));
+                isSongPlay = false;
+            }
+        }
+
+        if (isSongPlay) {
+            player.play();
+        } else {
+            player.pause();
+        }
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        this.getSongsData();
+    }
+
+    private void getSongsData() {
+        // Memastikan list item kosong sebelum di isi oleh data
+        songListView.getItems().clear();
+        // Menampilkan title dari songs yang ada di database
+        try {
+            Connection conn = Koneksi.getConnect();
+            String sql = "SELECT title FROM songs";
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+
+            while (rs.next()) {
+                String title = rs.getString("title");
+
+                songListView.getItems().add(title);
+            }
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Error");
+            alert.setContentText("Gagal menampilkan data, error: " + e.getMessage());
+            alert.show();
+        }
+
+        // Menginisialisasi playlist yang nanti bisa di play
+        try {
+            Connection conn = Koneksi.getConnect();
+            String sql = "SELECT filepath FROM songs";
+//            PreparedStatement pst = conn.prepareStatement(sql);
+//            pst.setString(1, selectedSong);
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+
+            player.setShuffle(true);
+
+            while (rs.next()) {
+                player.addToPlayList(new File(rs.getString("filepath")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}

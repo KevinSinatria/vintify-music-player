@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Copyright (c) 2015, 2019, Gluon and/or its affiliates.
+  All rights reserved. Use is subject to license terms.
+
+  This file is available and licensed under the following license:
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+
+  - Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+  - Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in
+    the documentation and/or other materials provided with the distribution.
+  - Neither the name of Oracle Corporation nor the names of its
+    contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.vintify.controller.DashboardController">
+  <children>
+      <HBox prefHeight="100.0" prefWidth="900.0">
+         <children>
+            <Pane prefHeight="83.0" prefWidth="900.0">
+               <children>
+                  <ImageView fitHeight="45.0" fitWidth="47.0" layoutX="386.0" layoutY="7.0">
+                     <image>
+                        <Image url="@assets/images/vintify-logo-transparent.png" />
+                     </image>
+                  </ImageView>
+                  <Label layoutX="438.0" layoutY="14.0" text="Vintify" textFill="#101010">
+                     <font>
+                        <Font name="Elephant" size="24.0" />
+                     </font>
+                  </Label>
+               </children>
+            </Pane>
+         </children>
+      </HBox>
+      <TabPane prefHeight="553.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="Offline Mode">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                      <SplitPane focusTraversable="true" prefHeight="549.0" prefWidth="900.0">
+                        <items>
+                          <ScrollPane prefHeight="546.0" prefWidth="879.0">
+                            <content>
+                              <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="902.0">
+                                       <children>
+                                          <Button fx:id="btnAddMusic" layoutX="39.0" layoutY="14.0" mnemonicParsing="false" onAction="#onBtnAddMusicClick" prefHeight="32.0" prefWidth="117.0" style="-fx-background-radius: 8; -fx-background-color: #18e58b;" text="Add Music (MP3)" textAlignment="CENTER" textFill="WHITE">
+                                             <font>
+                                                <Font name="Berlin Sans FB" size="12.0" />
+                                             </font></Button>
+                                          <ListView fx:id="songListView" layoutX="39.0" layoutY="62.0" onMouseClicked="#onSongListViewClick" prefHeight="295.0" prefWidth="789.0" />
+                                          <Slider layoutX="39.0" layoutY="367.0" prefHeight="24.0" prefWidth="789.0" />
+                                          <Label fx:id="currentDuration" layoutX="53.0" layoutY="383.0" text="00:00" />
+                                          <Label fx:id="endDuration" layoutX="788.0" layoutY="383.0" text="00:00" />
+                                          <HBox alignment="CENTER_LEFT" layoutX="36.0" layoutY="392.0" prefHeight="45.0" prefWidth="795.0">
+                                             <children>
+                                                <Pane prefHeight="45.0" prefWidth="231.0" />
+                                                <HBox alignment="CENTER" prefHeight="45.0" prefWidth="212.0">
+                                                   <children>
+                                                      <Pane prefHeight="45.0" prefWidth="206.0">
+                                                         <children>
+                                                            <ImageView fx:id="previousBtn" fitHeight="23.0" fitWidth="23.0" layoutX="34.0" layoutY="11.0">
+                                                               <image>
+                                                                  <Image url="@assets/images/previous.png" />
+                                                               </image>
+                                                            </ImageView>
+                                                         </children>
+                                                      </Pane>
+                                                      <ImageView fx:id="playPauseBtn" fitHeight="32.0" fitWidth="32.0">
+                                                         <image>
+                                                            <Image url="@assets/images/play-button-arrowhead.png" />
+                                                         </image>
+                                                      </ImageView>
+                                                      <Pane prefHeight="200.0" prefWidth="200.0">
+                                                         <children>
+                                                            <ImageView fx:id="nextBtn" fitHeight="23.0" fitWidth="23.0" layoutX="34.0" layoutY="11.0">
+                                                               <image>
+                                                                  <Image url="@assets/images/next.png" />
+                                                               </image>
+                                                            </ImageView>
+                                                         </children>
+                                                      </Pane>
+                                                   </children>
+                                                </HBox>
+                                                <Pane prefHeight="45.0" prefWidth="161.0" />
+                                                <ImageView fitHeight="25.0" fitWidth="30.0">
+                                                   <image>
+                                                      <Image url="@assets/images/volume-up.png" />
+                                                   </image>
+                                                </ImageView>
+                                                <Pane prefHeight="45.0" prefWidth="12.0" />
+                                                <Slider />
+                                             </children>
+                                          </HBox>
+                                          <Label layoutX="268.0" layoutY="20.0" text="Current Song: ">
+                                             <font>
+                                                <Font name="Berlin Sans FB" size="16.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="songLabel" layoutX="373.0" layoutY="21.0" text="No song selected" />
+                                       </children>
+                              </AnchorPane>
+                            </content>
+                          </ScrollPane>
+                        </items>
+                      </SplitPane>
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+          <Tab text="Online Mode (Preview Only)">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <ImageView fitHeight="166.0" fitWidth="530.0" layoutX="185.0" layoutY="160.0">
+                           <image>
+                              <Image url="@assets/images/coming-soon.png" />
+                           </image>
+                        </ImageView>
+                     </children></AnchorPane>
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+    <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
+      <children>
+        <Label maxHeight="1.7976931348623157E308" maxWidth="-1.0" text="V1" HBox.hgrow="ALWAYS">
+          <font>
+            <Font size="11.0" fx:id="x3" />
+          </font>
+          <textFill>
+            <Color red="0.625" green="0.625" blue="0.625" fx:id="x4" />
+          </textFill>
+        </Label>
+        <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+        <Label font="$x3" maxWidth="-1.0" text="By Kevin Sinatria" textFill="$x4" HBox.hgrow="NEVER" />
+      </children>
+      <padding>
+        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+      </padding>
+    </HBox>
+  </children>
+</VBox>
