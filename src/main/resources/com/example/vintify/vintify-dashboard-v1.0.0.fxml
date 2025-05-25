@@ -88,7 +88,7 @@
                                              </font></Button>
                                           <ListView fx:id="songListView" layoutX="39.0" layoutY="62.0" onMouseClicked="#onSongListViewClick" prefHeight="295.0" prefWidth="789.0" />
                                           <Slider layoutX="39.0" layoutY="367.0" prefHeight="24.0" prefWidth="789.0" />
-                                          <Label fx:id="currentDuration" layoutX="53.0" layoutY="383.0" text="00:00" />
+                                          <Label fx:id="currentPositionLabel" layoutX="53.0" layoutY="383.0" text="00:00" />
                                           <Label fx:id="endDuration" layoutX="788.0" layoutY="383.0" text="00:00" />
                                           <HBox alignment="CENTER_LEFT" layoutX="36.0" layoutY="392.0" prefHeight="45.0" prefWidth="795.0">
                                              <children>
@@ -104,7 +104,7 @@
                                                             </ImageView>
                                                          </children>
                                                       </Pane>
-                                                      <ImageView fx:id="playPauseBtn" fitHeight="32.0" fitWidth="32.0" onMouseClicked="#onPlayPauseBtnClick">
+                                                      <ImageView fx:id="playPauseBtn" fitHeight="32.0" fitWidth="32.0" onMouseClicked="#onPlayPauseBtnClick" style="-fx-cursor: pointer;">
                                                          <image>
                                                             <Image url="@assets/images/play-button-arrowhead.png" />
                                                          </image>

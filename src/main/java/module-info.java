@@ -7,6 +7,7 @@ module com.example.vintify {
     requires transitive jave;
     requires java.sql;
     requires transitive jaco.mp3.player;
+    requires com.google.common;
 
     opens com.example.vintify to javafx.fxml;
     exports com.example.vintify;
