@@ -8,11 +8,8 @@ import jaco.mp3.player.MP3Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
@@ -37,6 +34,8 @@ public class DashboardController implements Initializable {
     private Stopwatch currentPosition = Stopwatch.createUnstarted();
     private Long longCurrentPositionInMs = null;
     private String formattedCurrentPosition = null;
+    private Double currentMaxDurations = null;
+
 
     @FXML
     private Button btnAddMusic;
@@ -46,6 +45,9 @@ public class DashboardController implements Initializable {
 
     @FXML
     private Label currentPositionLabel;
+
+    @FXML
+    private Slider currentPositionSlider;
 
     @FXML
     private ListView<String> songListView;
@@ -73,6 +75,7 @@ public class DashboardController implements Initializable {
 
             Platform.runLater(() -> {
                 currentPositionLabel.setText(formattedCurrentPosition);
+                currentPositionSlider.setValue((double) longCurrentPositionInMs);
             });
         }
     }
@@ -138,7 +141,7 @@ public class DashboardController implements Initializable {
                             alert.setContentText("Data berhasil di upload!");
                             alert.show();
 
-                            this.getSongsData();
+                            this.setListsSongsData();
                         } else {
                             Alert alert = new Alert(Alert.AlertType.ERROR);
                             alert.setTitle("Error");
@@ -193,10 +196,29 @@ public class DashboardController implements Initializable {
         // Menjadikan lagu yang dipilih menjadi lagu yang pertama saat playlist di mulai
         player.addToPlayList(new File("src/main/resources/com/example/vintify/assets/musics/" + selectedSong));
 
+        currentPosition.reset();
         isSongPlay = true;
         player.play();
         currentPosition.start();
 
+        try {
+            Connection conn = Koneksi.getConnect();
+            String sql = "SELECT duration FROM songs WHERE title = ?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setString(1, selectedSong);
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next()) {
+                currentMaxDurations = rs.getDouble("duration");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        currentPositionSlider.setMin(0);
+        currentPositionSlider.setMax(currentMaxDurations);
+
+        // Fungsi setInterval (js) di java dengan menggunakan timer
         Timer timer = new Timer();
         TimerTask task = new currentPositionTask();
         timer.schedule(task, 0, 100);
@@ -234,6 +256,8 @@ public class DashboardController implements Initializable {
     public void onNextBtnClick() {
         if (!isSongPlay) {
             player.play();
+            currentPosition.reset();
+            currentPosition.start();
         }
         player.skipForward();
         playPauseBtn.setImage(new Image(getClass().getResource("/com/example/vintify/assets/images/pause.png").toString()));
@@ -250,23 +274,29 @@ public class DashboardController implements Initializable {
             alert.show();
         } else {
             if (!isSongPlay) {
+                player.play();
                 playPauseBtn.setImage(new Image(getClass().getResource("/com/example/vintify/assets/images/pause.png").toString()));
                 isSongPlay = true;
-                player.play();
+                if (!player.isPaused()) {
+                    currentPosition.start();
+                }
             } else {
+                player.pause();
                 playPauseBtn.setImage(new Image(getClass().getResource("/com/example/vintify/assets/images/play-button-arrowhead.png").toString()));
                 isSongPlay = false;
-                player.pause();
+                if (player.isPaused()) {
+                    currentPosition.stop();
+                }
             }
         }
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.getSongsData();
+        this.setListsSongsData();
     }
 
-    private void getSongsData() {
+    private void setListsSongsData() {
         // Memastikan list item kosong sebelum di isi oleh data
         songListView.getItems().clear();
         // Menampilkan title dari songs yang ada di database
