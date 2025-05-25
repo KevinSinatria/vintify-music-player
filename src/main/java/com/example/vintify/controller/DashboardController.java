@@ -1,9 +1,11 @@
 package com.example.vintify.controller;
 
 import com.example.vintify.Koneksi;
+import com.google.common.base.Stopwatch;
 import it.sauronsoftware.jave.Encoder;
 import it.sauronsoftware.jave.MultimediaInfo;
 import jaco.mp3.player.MP3Player;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -22,18 +24,28 @@ import java.nio.file.StandardCopyOption;
 import java.sql.*;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 
 public class DashboardController implements Initializable {
+    // Deklarasi variabel general di kelas ini
     private String selectedSong = null;
     private MP3Player player = new MP3Player();
     private boolean isSongPlay = false;
+    private Stopwatch currentPosition = Stopwatch.createUnstarted();
+    private Long longCurrentPositionInMs = null;
+    private String formattedCurrentPosition = null;
 
     @FXML
     private Button btnAddMusic;
 
     @FXML
     private ImageView playPauseBtn;
+
+    @FXML
+    private Label currentPositionLabel;
 
     @FXML
     private ListView<String> songListView;
@@ -43,6 +55,27 @@ public class DashboardController implements Initializable {
 
     @FXML
     private Label endDuration;
+
+    private class TestingTimerTask extends TimerTask {
+        public static int i = 0;
+
+        @Override
+        public void run() {
+            System.out.println("Timer ran:" + ++i);
+        }
+    }
+
+    private class currentPositionTask extends TimerTask {
+        @Override
+        public void run() {
+            longCurrentPositionInMs = currentPosition.elapsed(TimeUnit.MILLISECONDS);
+            formattedCurrentPosition = msToMinutesSeconds(longCurrentPositionInMs);
+
+            Platform.runLater(() -> {
+                currentPositionLabel.setText(formattedCurrentPosition);
+            });
+        }
+    }
 
     @FXML
     private void onBtnAddMusicClick() {
@@ -162,6 +195,11 @@ public class DashboardController implements Initializable {
 
         isSongPlay = true;
         player.play();
+        currentPosition.start();
+
+        Timer timer = new Timer();
+        TimerTask task = new currentPositionTask();
+        timer.schedule(task, 0, 100);
 
         // Membuat playlist
         try {
@@ -250,5 +288,13 @@ public class DashboardController implements Initializable {
             alert.setContentText("Gagal menampilkan data, error: " + e.getMessage());
             alert.show();
         }
+    }
+
+    private String msToMinutesSeconds(long ms) {
+        long minutes = ms / (1000 * 60);
+        long seconds = (ms % (1000 * 60)) / 1000;
+        String formattedTime = String.format("%02d:%02d", minutes, seconds);
+
+        return formattedTime;
     }
 }
