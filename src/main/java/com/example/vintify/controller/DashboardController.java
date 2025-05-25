@@ -14,7 +14,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
-//import javazoom.jl.player.Player;
 
 import java.io.File;
 import java.net.URL;
@@ -28,7 +27,7 @@ import java.util.ResourceBundle;
 public class DashboardController implements Initializable {
     private String selectedSong = null;
     private MP3Player player = new MP3Player();
-//    private Player player = new Player();
+    private boolean isSongPlay = false;
 
     @FXML
     private Button btnAddMusic;
@@ -145,7 +144,7 @@ public class DashboardController implements Initializable {
             alert.setTitle("Peringatan");
             alert.setHeaderText("Peringatan");
             alert.setContentText("File sudah ada, apakah anda ingin menimpanya?");
-            alert.show();
+            alert.showAndWait();
         }
         return targetFile;
     }
@@ -154,11 +153,57 @@ public class DashboardController implements Initializable {
     public void onSongListViewClick() {
         selectedSong = String.valueOf(songListView.getSelectionModel().getSelectedItem());
         songLabel.setText(selectedSong);
+        playPauseBtn.setImage(new Image(getClass().getResource("/com/example/vintify/assets/images/pause.png").toString()));
+        player.stop();
+        player.getPlayList().clear();
+
+        // Menjadikan lagu yang dipilih menjadi lagu yang pertama saat playlist di mulai
+        player.addToPlayList(new File("src/main/resources/com/example/vintify/assets/musics/" + selectedSong));
+
+        isSongPlay = true;
+        player.play();
+
+        // Membuat playlist
+        try {
+            Connection conn = Koneksi.getConnect();
+            String sql = "SELECT filepath FROM songs";
+//            PreparedStatement pst = conn.prepareStatement(sql);
+//            pst.setString(1, selectedSong);
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+
+            player.setRepeat(true);
+
+            while (rs.next()) {
+                player.addToPlayList(new File(rs.getString("filepath")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void onPreviousBtnClick() {
+        if (!isSongPlay) {
+            player.play();
+        }
+        player.skipBackward();
+        playPauseBtn.setImage(new Image(getClass().getResource("/com/example/vintify/assets/images/pause.png").toString()));
+        isSongPlay = true;
+    }
+
+    @FXML
+    public void onNextBtnClick() {
+        if (!isSongPlay) {
+            player.play();
+        }
+        player.skipForward();
+        playPauseBtn.setImage(new Image(getClass().getResource("/com/example/vintify/assets/images/pause.png").toString()));
+        isSongPlay = true;
     }
 
     @FXML
     public void onPlayPauseBtnClick() {
-        boolean isSongPlay = false;
         if (selectedSong == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
@@ -166,19 +211,15 @@ public class DashboardController implements Initializable {
             alert.setContentText("Silakan pilih file yang ingin diputar terlebih dahulu.");
             alert.show();
         } else {
-            if (playPauseBtn.getImage().getUrl().equals("file:/C:/Users/Kevin/Java/projects/Vintify/target/classes/com/example/vintify/assets/images/play-button-arrowhead.png")) {
-                playPauseBtn.setImage(new Image("file:/C:/Users/Kevin/Java/projects/Vintify/target/classes/com/example/vintify/assets/images/pause.png"));
+            if (!isSongPlay) {
+                playPauseBtn.setImage(new Image(getClass().getResource("/com/example/vintify/assets/images/pause.png").toString()));
                 isSongPlay = true;
+                player.play();
             } else {
-                playPauseBtn.setImage(new Image("file:/C:/Users/Kevin/Java/projects/Vintify/target/classes/com/example/vintify/assets/images/play-button-arrowhead.png"));
+                playPauseBtn.setImage(new Image(getClass().getResource("/com/example/vintify/assets/images/play-button-arrowhead.png").toString()));
                 isSongPlay = false;
+                player.pause();
             }
-        }
-
-        if (isSongPlay) {
-            player.play();
-        } else {
-            player.pause();
         }
     }
 
@@ -208,24 +249,6 @@ public class DashboardController implements Initializable {
             alert.setHeaderText("Error");
             alert.setContentText("Gagal menampilkan data, error: " + e.getMessage());
             alert.show();
-        }
-
-        // Menginisialisasi playlist yang nanti bisa di play
-        try {
-            Connection conn = Koneksi.getConnect();
-            String sql = "SELECT filepath FROM songs";
-//            PreparedStatement pst = conn.prepareStatement(sql);
-//            pst.setString(1, selectedSong);
-            Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery(sql);
-
-            player.setShuffle(true);
-
-            while (rs.next()) {
-                player.addToPlayList(new File(rs.getString("filepath")));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 }
