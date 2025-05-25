@@ -97,21 +97,21 @@
                                                    <children>
                                                       <Pane prefHeight="45.0" prefWidth="206.0">
                                                          <children>
-                                                            <ImageView fx:id="previousBtn" fitHeight="23.0" fitWidth="23.0" layoutX="34.0" layoutY="11.0">
+                                                            <ImageView fx:id="previousBtn" fitHeight="23.0" fitWidth="23.0" layoutX="34.0" layoutY="11.0" onMouseClicked="#onPreviousBtnClick">
                                                                <image>
                                                                   <Image url="@assets/images/previous.png" />
                                                                </image>
                                                             </ImageView>
                                                          </children>
                                                       </Pane>
-                                                      <ImageView fx:id="playPauseBtn" fitHeight="32.0" fitWidth="32.0">
+                                                      <ImageView fx:id="playPauseBtn" fitHeight="32.0" fitWidth="32.0" onMouseClicked="#onPlayPauseBtnClick">
                                                          <image>
                                                             <Image url="@assets/images/play-button-arrowhead.png" />
                                                          </image>
                                                       </ImageView>
                                                       <Pane prefHeight="200.0" prefWidth="200.0">
                                                          <children>
-                                                            <ImageView fx:id="nextBtn" fitHeight="23.0" fitWidth="23.0" layoutX="34.0" layoutY="11.0">
+                                                            <ImageView fx:id="nextBtn" fitHeight="23.0" fitWidth="23.0" layoutX="34.0" layoutY="11.0" onMouseClicked="#onNextBtnClick">
                                                                <image>
                                                                   <Image url="@assets/images/next.png" />
                                                                </image>
@@ -130,12 +130,12 @@
                                                 <Slider />
                                              </children>
                                           </HBox>
-                                          <Label layoutX="268.0" layoutY="20.0" text="Current Song: ">
+                                          <Label layoutX="230.0" layoutY="20.0" text="Currently Selected Song: ">
                                              <font>
                                                 <Font name="Berlin Sans FB" size="16.0" />
                                              </font>
                                           </Label>
-                                          <Label fx:id="songLabel" layoutX="373.0" layoutY="21.0" text="No song selected" />
+                                          <Label fx:id="songLabel" layoutX="405.0" layoutY="21.0" text="No song selected" />
                                        </children>
                               </AnchorPane>
                             </content>
