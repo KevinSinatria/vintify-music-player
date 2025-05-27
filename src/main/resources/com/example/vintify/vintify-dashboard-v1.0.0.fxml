@@ -41,6 +41,10 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.effect.Light.Distant?>
+<?import javafx.scene.effect.Lighting?>
+<?import javafx.scene.effect.Shadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -60,6 +64,9 @@
                      <image>
                         <Image url="@assets/images/vintify-logo-transparent.png" />
                      </image>
+                     <effect>
+                        <Glow level="0.5" />
+                     </effect>
                   </ImageView>
                   <Label layoutX="438.0" layoutY="14.0" text="Vintify" textFill="#101010">
                      <font>
@@ -74,22 +81,42 @@
         <tabs>
           <Tab text="Offline Mode">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-color: blue;">
                      <children>
-                      <SplitPane focusTraversable="true" prefHeight="549.0" prefWidth="900.0">
+                      <SplitPane focusTraversable="true" prefHeight="549.0" prefWidth="900.0" style="-fx-background-color: black;">
                         <items>
-                          <ScrollPane prefHeight="546.0" prefWidth="879.0">
+                          <ScrollPane prefHeight="546.0" prefWidth="879.0" style="-fx-background-color: blue;">
                             <content>
-                              <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="902.0">
+                              <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="481.0" prefWidth="902.0" style="-fx-background-color: #c4c4c4;">
                                        <children>
-                                          <Button fx:id="btnAddMusic" layoutX="39.0" layoutY="14.0" mnemonicParsing="false" onAction="#onBtnAddMusicClick" prefHeight="32.0" prefWidth="117.0" style="-fx-background-radius: 8; -fx-background-color: #18e58b;" text="Add Music (MP3)" textAlignment="CENTER" textFill="WHITE">
+                                          <Button fx:id="btnAddMusic" layoutX="39.0" layoutY="14.0" mnemonicParsing="false" onAction="#onBtnAddMusicClick" prefHeight="32.0" prefWidth="117.0" style="-fx-background-radius: 20; -fx-background-color: #18e58b; -fx-border-color: #737373; -fx-border-radius: 20;" text="Add Music (MP3)" textAlignment="CENTER" textFill="WHITE">
                                              <font>
                                                 <Font name="Berlin Sans FB" size="12.0" />
-                                             </font></Button>
+                                             </font>
+                                             <effect>
+                                                <Lighting diffuseConstant="2.0" specularConstant="0.84" specularExponent="40.0" surfaceScale="8.02">
+                                                   <bumpInput>
+                                                      <Shadow>
+                                                         <color>
+                                                            <Color opacity="0.4593908488750458" />
+                                                         </color>
+                                                      </Shadow>
+                                                   </bumpInput>
+                                                   <light>
+                                                      <Light.Distant />
+                                                   </light>
+                                                </Lighting>
+                                             </effect></Button>
                                           <ListView fx:id="songListView" layoutX="39.0" layoutY="62.0" onMouseClicked="#onSongListViewClick" prefHeight="295.0" prefWidth="789.0" />
                                           <Slider fx:id="currentPositionSlider" layoutX="39.0" layoutY="367.0" prefHeight="24.0" prefWidth="789.0" />
-                                          <Label fx:id="currentPositionLabel" layoutX="53.0" layoutY="383.0" text="00:00" />
-                                          <Label fx:id="endDuration" layoutX="788.0" layoutY="383.0" text="00:00" />
+                                          <Label fx:id="currentPositionLabel" layoutX="53.0" layoutY="383.0" text="00:00">
+                                             <font>
+                                                <Font size="14.0" />
+                                             </font></Label>
+                                          <Label fx:id="endDurationLabel" layoutX="788.0" layoutY="383.0" text="00:00">
+                                             <font>
+                                                <Font size="14.0" />
+                                             </font></Label>
                                           <HBox alignment="CENTER_LEFT" layoutX="36.0" layoutY="392.0" prefHeight="45.0" prefWidth="795.0">
                                              <children>
                                                 <Pane prefHeight="45.0" prefWidth="231.0" />
@@ -127,7 +154,7 @@
                                                    </image>
                                                 </ImageView>
                                                 <Pane prefHeight="45.0" prefWidth="12.0" />
-                                                <Slider />
+                                                <Slider fx:id="currentVolumeSlider" onDragDetected="#onCurrentVolumeSlider" />
                                              </children>
                                           </HBox>
                                           <Label layoutX="230.0" layoutY="20.0" text="Currently Selected Song: ">
@@ -136,6 +163,7 @@
                                              </font>
                                           </Label>
                                           <Label fx:id="songLabel" layoutX="405.0" layoutY="21.0" text="No song selected" />
+                                          <Label fx:id="currentVolumeLabel" layoutX="828.0" layoutY="406.0" text="0%" />
                                        </children>
                               </AnchorPane>
                             </content>

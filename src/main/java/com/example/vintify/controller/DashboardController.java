@@ -15,6 +15,7 @@ import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -32,7 +33,7 @@ public class DashboardController implements Initializable {
     private MP3Player player = new MP3Player();
     private boolean isSongPlay = false;
     private Stopwatch currentPosition = Stopwatch.createUnstarted();
-    private Long longCurrentPositionInMs = null;
+    private Double longCurrentPositionInMs = null;
     private String formattedCurrentPosition = null;
     private Double currentMaxDurations = null;
 
@@ -50,13 +51,20 @@ public class DashboardController implements Initializable {
     private Slider currentPositionSlider;
 
     @FXML
+    private Slider currentVolumeSlider;
+    private int currentValueOfVolumeSlider;
+
+    @FXML
+    private Label currentVolumeLabel;
+
+    @FXML
     private ListView<String> songListView;
 
     @FXML
     private Label songLabel;
 
     @FXML
-    private Label endDuration;
+    private Label endDurationLabel;
 
     private class TestingTimerTask extends TimerTask {
         public static int i = 0;
@@ -70,7 +78,7 @@ public class DashboardController implements Initializable {
     private class currentPositionTask extends TimerTask {
         @Override
         public void run() {
-            longCurrentPositionInMs = currentPosition.elapsed(TimeUnit.MILLISECONDS);
+            longCurrentPositionInMs = Double.valueOf(currentPosition.elapsed(TimeUnit.MILLISECONDS));
             formattedCurrentPosition = msToMinutesSeconds(longCurrentPositionInMs);
 
             Platform.runLater(() -> {
@@ -217,6 +225,8 @@ public class DashboardController implements Initializable {
 
         currentPositionSlider.setMin(0);
         currentPositionSlider.setMax(currentMaxDurations);
+        endDurationLabel.setText(String.valueOf(msToMinutesSeconds(currentMaxDurations)));
+
 
         // Fungsi setInterval (js) di java dengan menggunakan timer
         Timer timer = new Timer();
@@ -291,9 +301,37 @@ public class DashboardController implements Initializable {
         }
     }
 
+    @FXML
+    public void onCurrentVolumeSlider() {
+        currentVolumeSlider.valueProperty().addListener((
+                observable, oldValue, newValue) -> {
+            try {
+                String cmd = "src/main/java/com/example/vintify/controller/nircmd.exe setsysvolume " + newValue.intValue();
+                Runtime.getRuntime().exec(cmd);
+            } catch (RuntimeException | IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            currentVolumeLabel.setText((newValue.intValue() * 100) / 65535 + "%");
+        });
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.setListsSongsData();
+
+        currentVolumeSlider.setMin(0);
+        currentVolumeSlider.setMax(65535);
+        currentVolumeSlider.setValue(65535);
+
+        currentValueOfVolumeSlider = (int) currentVolumeSlider.getValue();
+        try {
+            String cmd = "src/main/java/com/example/vintify/controller/nircmd.exe setsysvolume " + currentValueOfVolumeSlider;
+            Runtime.getRuntime().exec(cmd);
+        } catch (RuntimeException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        currentVolumeLabel.setText(currentValueOfVolumeSlider / 65535 * 100 + "%");
     }
 
     private void setListsSongsData() {
@@ -320,9 +358,9 @@ public class DashboardController implements Initializable {
         }
     }
 
-    private String msToMinutesSeconds(long ms) {
-        long minutes = ms / (1000 * 60);
-        long seconds = (ms % (1000 * 60)) / 1000;
+    private String msToMinutesSeconds(Double ms) {
+        long minutes = (long) (ms / (1000 * 60));
+        long seconds = (long) ((ms % (1000 * 60)) / 1000);
         String formattedTime = String.format("%02d:%02d", minutes, seconds);
 
         return formattedTime;
