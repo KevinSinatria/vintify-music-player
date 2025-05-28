@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class DashboardController implements Initializable {
     // Deklarasi variabel general di kelas ini
     private String selectedSong = null;
+    private static boolean isFileExists = false;
     private MP3Player player = new MP3Player();
     private boolean isSongPlay = false;
     private Stopwatch currentPosition = Stopwatch.createUnstarted();
@@ -131,38 +132,40 @@ public class DashboardController implements Initializable {
                     }
 
                     // Proses menyimpan data ke database
-                    try {
-                        Connection conn = Koneksi.getConnect();
-                        String query = "INSERT INTO songs (title, filename, filepath, duration, filesize) VALUES (?, ?, ?, ?, ?)";
-                        PreparedStatement pst = conn.prepareStatement(query);
-                        pst.setString(1, title);
-                        pst.setString(2, fileName);
-                        pst.setString(3, filePath);
-                        pst.setLong(4, duration);
-                        pst.setLong(5, fileSize);
+                    if (!isFileExists) {
+                        try {
+                            Connection conn = Koneksi.getConnect();
+                            String query = "INSERT INTO songs (title, filename, filepath, duration, filesize) VALUES (?, ?, ?, ?, ?)";
+                            PreparedStatement pst = conn.prepareStatement(query);
+                            pst.setString(1, title);
+                            pst.setString(2, fileName);
+                            pst.setString(3, filePath);
+                            pst.setLong(4, duration);
+                            pst.setLong(5, fileSize);
 
-                        int resultQuery = pst.executeUpdate();
-                        if (resultQuery > 0) {
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setTitle("Success");
-                            alert.setHeaderText("Berhasil");
-                            alert.setContentText("Data berhasil di upload!");
-                            alert.show();
+                            int resultQuery = pst.executeUpdate();
+                            if (resultQuery > 0) {
+                                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                alert.setTitle("Success");
+                                alert.setHeaderText("Berhasil");
+                                alert.setContentText("Data berhasil di upload!");
+                                alert.show();
 
-                            this.setListsSongsData();
-                        } else {
+                                this.setListsSongsData();
+                            } else {
+                                Alert alert = new Alert(Alert.AlertType.ERROR);
+                                alert.setTitle("Error");
+                                alert.setHeaderText("Error");
+                                alert.setContentText("Gagal mengupload data!");
+                                alert.show();
+                            }
+                        } catch (Exception e) {
                             Alert alert = new Alert(Alert.AlertType.ERROR);
                             alert.setTitle("Error");
                             alert.setHeaderText("Error");
-                            alert.setContentText("Gagal mengupload data!");
+                            alert.setContentText("Gagal mengupload data ke database: " + e.getMessage());
                             alert.show();
                         }
-                    } catch (Exception e) {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setHeaderText("Error");
-                        alert.setContentText("Gagal mengupload data ke database: " + e.getMessage());
-                        alert.show();
                     }
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -189,7 +192,11 @@ public class DashboardController implements Initializable {
             alert.setHeaderText("Peringatan");
             alert.setContentText("File sudah ada, apakah anda ingin menimpanya?");
             alert.showAndWait();
+            isFileExists = true;
+        } else {
+            isFileExists = false;
         }
+
         return targetFile;
     }
 
