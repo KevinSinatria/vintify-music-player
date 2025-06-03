@@ -164,6 +164,11 @@
                                           </Label>
                                           <Label fx:id="songLabel" layoutX="405.0" layoutY="21.0" text="No song selected" />
                                           <Label fx:id="currentVolumeLabel" layoutX="828.0" layoutY="406.0" text="0%" />
+                                          <Label layoutX="331.0" layoutY="358.0" text="Current Selected Song Duration">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
                                        </children>
                               </AnchorPane>
                             </content>

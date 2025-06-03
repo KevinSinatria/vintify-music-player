@@ -218,13 +218,12 @@ public class DashboardController implements Initializable {
 
         try {
             Connection conn = Koneksi.getConnect();
-            String sql = "SELECT duration FROM songs WHERE title = ?";
+            String sql = "SELECT SUM(duration) as total_duration FROM songs";
             PreparedStatement pst = conn.prepareStatement(sql);
-            pst.setString(1, selectedSong);
             ResultSet rs = pst.executeQuery();
 
             while (rs.next()) {
-                currentMaxDurations = rs.getDouble("duration");
+                currentMaxDurations = rs.getDouble("total_duration");
             }
         } catch (SQLException e) {
             e.printStackTrace();
